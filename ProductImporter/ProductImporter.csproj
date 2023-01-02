@@ -7,4 +7,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Model\" />
+    <Folder Include="Target\" />
+    <Folder Include="Source\" />
+    <Folder Include="Shared\" />
+  </ItemGroup>
+
 </Project>
