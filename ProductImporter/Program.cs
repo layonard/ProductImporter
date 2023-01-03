@@ -19,9 +19,47 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddTransient<ProductImporter>();
 
         services.AddSingleton<IImportStatistics, ImportStatistics>();
+
+        services.AddScoped<ScopedSample>(); //Test scoped lifecicle
     })
     .Build();
 
+/*
 var productImporter = host.Services.GetRequiredService<ProductImporter>();
 
 productImporter.Run();
+*/
+
+CompareInstancesLifecicle();
+
+void CompareInstancesLifecicle()
+{
+    Console.WriteLine("---- COMPARE LIFECICLES ----");
+    Console.WriteLine("TRANSIENT");
+    var productImporter1 = host.Services.GetService<ProductImporter>();
+    var productImporter2 = host.Services.GetService<ProductImporter>();
+    Console.WriteLine("Is productImporter1 equals to productImporter2?");
+    Console.WriteLine(Object.ReferenceEquals(productImporter1, productImporter2));
+
+    Console.WriteLine("SINGLETON");
+    var importStatistics1 = host.Services.GetService<IImportStatistics>();
+    var importStatistics2 = host.Services.GetService<IImportStatistics>();
+    Console.WriteLine("Is importStatistics1 equals to importStatistics2?");
+    Console.WriteLine(Object.ReferenceEquals(importStatistics1, importStatistics2));
+
+    Console.WriteLine("SCOPED");
+    using var firstScope = host.Services.CreateScope();
+    var resolvedOnce = firstScope.ServiceProvider.GetRequiredService<ScopedSample>();
+    var resolvedTwice = firstScope.ServiceProvider.GetRequiredService<ScopedSample>();
+    var isSameinFirstScope = Object.ReferenceEquals(resolvedOnce, resolvedTwice);
+    
+    using var secondScope = host.Services.CreateScope();
+    var resolvedThrice = secondScope.ServiceProvider.GetRequiredService<ScopedSample>();
+    var resolvedForth = secondScope.ServiceProvider.GetRequiredService<ScopedSample>();
+    var isSameinSecondScope = Object.ReferenceEquals(resolvedThrice, resolvedForth);
+    var isSameCrossScope = Object.ReferenceEquals(resolvedOnce, resolvedForth);
+
+    Console.WriteLine($"{nameof(isSameinFirstScope)}? {isSameinFirstScope}");
+    Console.WriteLine($"{nameof(isSameinSecondScope)}? {isSameinSecondScope}");
+    Console.WriteLine($"{nameof(isSameCrossScope)}? {isSameCrossScope}");
+}
