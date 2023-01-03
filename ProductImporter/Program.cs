@@ -17,6 +17,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddTransient<IProductTarget, ProductTarget>();
 
         services.AddTransient<ProductImporter>();
+
+        services.AddSingleton<IImportStatistics, ImportStatistics>();
     })
     .Build();
 
